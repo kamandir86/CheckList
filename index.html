@@ -15,7 +15,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -36,6 +36,9 @@
 
         .user-select {
             margin-bottom: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .user-select label {
@@ -62,12 +65,17 @@
             border-color: #3b82f6;
         }
 
+        #listsContainer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
         .list {
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 20px;
-            margin-bottom: 20px;
         }
 
         .list-header {
@@ -121,12 +129,14 @@
             height: 20px;
             cursor: pointer;
             accent-color: #3b82f6;
+            flex-shrink: 0;
         }
 
         .item-text {
             flex: 1;
             font-size: 14px;
             font-weight: 500;
+            word-break: break-word;
         }
 
         .delete-btn {
@@ -137,6 +147,7 @@
             font-size: 12px;
             cursor: pointer;
             font-weight: 600;
+            flex-shrink: 0;
         }
 
         .delete-btn:hover {
@@ -188,6 +199,7 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
+            width: 100%;
         }
 
         .reset-btn:hover {
@@ -202,6 +214,28 @@
 
         .hidden {
             display: none;
+        }
+
+        /* Mobile - jedna kolumna */
+        @media (max-width: 768px) {
+            #listsContainer {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+
+        /* Tablet - dwie kolumny */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #listsContainer {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -235,32 +269,48 @@
     <script>
         const DEFAULT_DATA = {
             'na-sobie': [
-                { text: 'Koszula', checked: false },
-                { text: 'Spodnie', checked: false },
+                { text: 'Bielizna', checked: false },
                 { text: 'Skarpety', checked: false },
+                { text: 'Spodnie', checked: false },
+                { text: 'Koszulka', checked: false },
+                { text: 'Sweter/bluza', checked: false },
+                { text: 'Kurtka zimowa', checked: false },
+                { text: 'Czapka', checked: false },
+                { text: 'Szalik', checked: false },
                 { text: 'Buty', checked: false },
-                { text: 'Kurtka', checked: false }
+                { text: 'Pasek', checked: false },
+                { text: 'Zegarek (opcja)', checked: false },
+                { text: 'Okulary (opcja)', checked: false },
+                { text: 'Rękawiczki (opcja)', checked: false }
             ],
             'plecak': [
-                { text: 'Telefon', checked: false },
-                { text: 'Ładowarka', checked: false },
-                { text: 'Powerbank', checked: false },
-                { text: 'Woda', checked: false },
-                { text: 'Jedzenie', checked: false },
-                { text: 'Apteczka', checked: false }
+                { text: 'Dodatkowe spodnie dresowe', checked: false },
+                { text: 'Bielizna × 3 komplety', checked: false },
+                { text: 'Długie skarpety × 3 pary', checked: false },
+                { text: 'Piżama', checked: false },
+                { text: 'Pasta do zębów', checked: false },
+                { text: 'Dezodorant', checked: false },
+                { text: 'Szczoteczka do zębów', checked: false },
+                { text: 'Leki osobiste', checked: false },
+                { text: 'Okularki do czytania', checked: false },
+                { text: 'Kabel ładowania telefonu', checked: false },
+                { text: 'Paszport', checked: false },
+                { text: 'Kasa / Karty płatnicze', checked: false },
+                { text: 'Ubezpieczenie/dokumenty', checked: false },
+                { text: 'Bielizna Termoaktywna (opcja)', checked: false }
             ],
             'na-miejscu': [
-                { text: 'Namiot', checked: false },
-                { text: 'Śpiwór', checked: false },
-                { text: 'Mata', checked: false },
-                { text: 'Latarka', checked: false },
-                { text: 'Kompas', checked: false }
+                { text: 'ALKOHOL', checked: false },
+                { text: 'Szampon', checked: false },
+                { text: 'Żel pod prysznic', checked: false },
+                { text: 'Szczoteczka', checked: false },
+                { text: 'Pasta do zębów', checked: false }
             ]
         };
 
         const LISTS = {
             'na-sobie': 'NA SOBIE',
-            'plecak': 'PLECAK',
+            'plecak': 'W PLECAKU',
             'na-miejscu': 'NA MIEJSCU'
         };
 
@@ -299,7 +349,6 @@
                 const listDiv = document.createElement('div');
                 listDiv.className = 'list';
 
-                // Header
                 const header = document.createElement('div');
                 header.className = 'list-header';
 
@@ -315,7 +364,6 @@
                 header.appendChild(badge);
                 listDiv.appendChild(header);
 
-                // Items
                 items.forEach((item, idx) => {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'item' + (item.checked ? ' checked' : '');
@@ -349,7 +397,6 @@
                     listDiv.appendChild(itemDiv);
                 });
 
-                // Add form
                 const form = document.createElement('form');
                 form.className = 'add-form';
                 form.onsubmit = function(e) {
@@ -377,7 +424,6 @@
                 form.appendChild(addBtn);
                 listDiv.appendChild(form);
 
-                // Reset button
                 const resetBtn = document.createElement('button');
                 resetBtn.className = 'reset-btn';
                 resetBtn.textContent = 'Wyczyść wszystko';
@@ -408,7 +454,6 @@
             }
         };
 
-        // URL parameter support
         const params = new URLSearchParams(window.location.search);
         const urlUser = params.get('user');
         if (urlUser) {
