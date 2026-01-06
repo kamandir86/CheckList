@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Checklist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .user-select {
+            margin-bottom: 30px;
+        }
+
+        .user-select label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .list {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+
+        .list-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .progress {
+            background: #3b82f6;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .progress.complete {
+            background: #10b981;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .item.checked {
+            opacity: 0.6;
+        }
+
+        .item.checked .item-text {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .item-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .delete-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .add-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .add-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .add-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background: #2563eb;
+        }
+
+        .reset-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .prompt {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎒 Team Checklist</h1>
+            <p class="subtitle">Przygotuj się do wyprawy</p>
+        </header>
+
+        <div class="user-select">
+            <label>Wybierz swoją osobę:</label>
+            <select id="userSelect">
+                <option value="">-- Wybierz imię --</option>
+                <option value="bartek">Bartek</option>
+                <option value="maciej">Maciej</option>
+                <option value="dawid">Dawid</option>
+                <option value="pawel">Paweł</option>
+                <option value="michal">Michał</option>
+                <option value="vitalii">Vitalii</option>
+            </select>
+        </div>
+
+        <div id="listsContainer"></div>
+
+        <div id="prompt" class="prompt">
+            <p>👤 Wybierz swoje imię powyżej, aby zobaczyć swoje listy</p>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_DATA = {
+            'na-sobie': [
+                { text: 'Koszula', checked: false },
+                { text: 'Spodnie', checked: false },
+                { text: 'Skarpety', checked: false },
+                { text: 'Buty', checked: false },
+                { text: 'Kurtka', checked: false }
+            ],
+            'plecak': [
+                { text: 'Telefon', checked: false },
+                { text: 'Ładowarka', checked: false },
+                { text: 'Powerbank', checked: false },
+                { text: 'Woda', checked: false },
+                { text: 'Jedzenie', checked: false },
+                { text: 'Apteczka', checked: false }
+            ],
+            'na-miejscu': [
+                { text: 'Namiot', checked: false },
+                { text: 'Śpiwór', checked: false },
+                { text: 'Mata', checked: false },
+                { text: 'Latarka', checked: false },
+                { text: 'Kompas', checked: false }
+            ]
+        };
+
+        const LISTS = {
+            'na-sobie': 'NA SOBIE',
+            'plecak': 'PLECAK',
+            'na-miejscu': 'NA MIEJSCU'
+        };
+
+        let currentUser = '';
+
+        function getData(user) {
+            const key = 'checklist_' + user;
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+
+        function saveData(user, data) {
+            localStorage.setItem('checklist_' + user, JSON.stringify(data));
+        }
+
+        function getProgress(items) {
+            if (items.length === 0) return 0;
+            const checked = items.filter(i => i.checked).length;
+            return Math.round((checked / items.length) * 100);
+        }
+
+        function render(user) {
+            currentUser = user;
+            const data = getData(user);
+            const container = document.getElementById('listsContainer');
+            container.innerHTML = '';
+
+            for (let listKey in LISTS) {
+                const listTitle = LISTS[listKey];
+                const items = data[listKey];
+                const progress = getProgress(items);
+
+                const listDiv = document.createElement('div');
+                listDiv.className = 'list';
+
+                // Header
+                const header = document.createElement('div');
+                header.className = 'list-header';
+
+                const title = document.createElement('div');
+                title.className = 'list-title';
+                title.textContent = listTitle;
+
+                const badge = document.createElement('div');
+                badge.className = 'progress' + (progress === 100 && items.length > 0 ? ' complete' : '');
+                badge.textContent = progress + '%';
+
+                header.appendChild(title);
+                header.appendChild(badge);
+                listDiv.appendChild(header);
+
+                // Items
+                items.forEach((item, idx) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item' + (item.checked ? ' checked' : '');
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'checkbox';
+                    checkbox.checked = item.checked;
+                    checkbox.onchange = function() {
+                        item.checked = this.checked;
+                        saveData(user, data);
+                        render(user);
+                    };
+
+                    const text = document.createElement('span');
+                    text.className = 'item-text';
+                    text.textContent = item.text;
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'delete-btn';
+                    delBtn.textContent = '✕';
+                    delBtn.onclick = function() {
+                        items.splice(idx, 1);
+                        saveData(user, data);
+                        render(user);
+                    };
+
+                    itemDiv.appendChild(checkbox);
+                    itemDiv.appendChild(text);
+                    itemDiv.appendChild(delBtn);
+                    listDiv.appendChild(itemDiv);
+                });
+
+                // Add form
+                const form = document.createElement('form');
+                form.className = 'add-form';
+                form.onsubmit = function(e) {
+                    e.preventDefault();
+                    const input = this.querySelector('input');
+                    const text = input.value.trim();
+                    if (text) {
+                        items.push({ text: text, checked: false });
+                        saveData(user, data);
+                        render(user);
+                    }
+                };
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'add-input';
+                input.placeholder = 'Dodaj nowy element...';
+
+                const addBtn = document.createElement('button');
+                addBtn.type = 'submit';
+                addBtn.className = 'add-btn';
+                addBtn.textContent = '+';
+
+                form.appendChild(input);
+                form.appendChild(addBtn);
+                listDiv.appendChild(form);
+
+                // Reset button
+                const resetBtn = document.createElement('button');
+                resetBtn.className = 'reset-btn';
+                resetBtn.textContent = 'Wyczyść wszystko';
+                resetBtn.onclick = function() {
+                    if (confirm('Czy na pewno wyczyścić wszystkie haczyki w "' + listTitle + '"?')) {
+                        items.forEach(item => item.checked = false);
+                        saveData(user, data);
+                        render(user);
+                    }
+                };
+                listDiv.appendChild(resetBtn);
+
+                container.appendChild(listDiv);
+            }
+        }
+
+        document.getElementById('userSelect').onchange = function() {
+            const user = this.value;
+            const prompt = document.getElementById('prompt');
+            const container = document.getElementById('listsContainer');
+
+            if (user) {
+                prompt.classList.add('hidden');
+                render(user);
+            } else {
+                prompt.classList.remove('hidden');
+                container.innerHTML = '';
+            }
+        };
+
+        // URL parameter support
+        const params = new URLSearchParams(window.location.search);
+        const urlUser = params.get('user');
+        if (urlUser) {
+            const select = document.getElementById('userSelect');
+            select.value = urlUser;
+            if (select.value === urlUser) {
+                document.getElementById('prompt').classList.add('hidden');
+                render(urlUser);
+            }
+        }
+    </script>
+</body>
+</html>
